@@ -231,7 +231,347 @@ function joblist_install(){
     );
     $db->insert_query("templategroups", $templategroup);
 
+    // Arbeitsplätze ohne Tabs
+	$insert_array = array(
+		'title'        => 'joblist',
+		'template'    => $db->escape_string('<html>
+        <head>
+            <title>{$mybb->settings[\'bbname\']} - {$lang->jobliste}</title>
+            {$headerinclude}
+        </head>
+        <body>
+            {$header}
+            <table border="0" cellspacing="{$theme[\'borderwidth\']}" cellpadding="{$theme[\'tablespace\']}" class="tborder">
+                <tr>
+                    <td class="thead"><span class="smalltext"><strong>Jobliste</strong></span></td>
+                </tr>
+                <tr>
+                    <td class="trow2">Da alle Charaktere einen Beruf nachgehen, haben wir eine ausführliche Berufsliste erstellt, in der ihr einen Großteil der möglichen Arbeitsstätten finden könnt. Es ist durchaus möglich, auch individuelle neue Geschäfte einzufügen. Klickt dafür einfach auf Arbeitsplatz hinzufügen und füllt die entsprechenden Felder aus. Danach prüft das Team euren Arbeitsplatz und schaltet diesen gegebenen Falls frei. Um euren Job einzutragen, müsst ihr auf Job eintragen, klicken und den Betrieb auswählen und eure Position. Schüler tragen sich auch ein.<br>Solltet ihr ein vorhandenes Geschäft übernehmen wollen oder einen Text geändert haben, dann meldet euch dafür bitte im Supportbereich.</td>
+                </tr>
+            </table>
+            <br />
+            {$joblist_add}
+            <br />    
+            {$joblist_join}
+            <br />
+            <table border="0" cellspacing="{$theme[\'borderwidth\']}" cellpadding="{$theme[\'tablespace\']}" class="tborder">
+                <tr>
+                    <td class="thead"><span class="smalltext"><strong>Jobübersicht</strong></span></td>
+                </tr>
+                {$joblist_filter}
+                <tr>
+                    <td class="trow2" width="100%">
+                        <center>{$multipage}</center><br />
+                        {$joblist_bit}
+                        <center>{$multipage}</center><br />
+                    </td>
+                </tr>
+            </table>
+            {$footer}
+        </body>
+    </html>'),
+		'sid'        => '-2',
+		'version'    => '',
+		'dateline'    => TIME_NOW
+	);
+	$db->insert_query("templates", $insert_array);
+
+    // Arbeitsplätze in Tabs
+	$insert_array = array(
+		'title'        => 'joblist_tabs',
+		'template'    => $db->escape_string('<html>
+        <head>
+            <title>{$mybb->settings[\'bbname\']} - {$lang->jobliste}</title>
+            {$headerinclude}
+        </head>
+        <body>
+            {$header}
+            <table border="0" cellspacing="{$theme[\'borderwidth\']}" cellpadding="{$theme[\'tablespace\']}" class="tborder">
+                <tr>
+                    <td class="thead"><span class="smalltext"><strong>Jobliste</strong></span></td>
+                </tr>
+                <tr>
+                    <td class="trow2">Da alle Charaktere einen Beruf nachgehen, haben wir eine ausführliche Berufsliste erstellt, in der ihr einen Großteil der möglichen Arbeitsstätten finden könnt. Es ist durchaus möglich, auch individuelle neue Geschäfte einzufügen. Klickt dafür einfach auf Arbeitsplatz hinzufügen und füllt die entsprechenden Felder aus. Danach prüft das Team euren Arbeitsplatz und schaltet diesen gegebenen Falls frei. Um euren Job einzutragen, müsst ihr auf Job eintragen, klicken und den Betrieb auswählen und eure Position. Schüler tragen sich auch ein.<br>Solltet ihr ein vorhandenes Geschäft übernehmen wollen oder einen Text geändert haben, dann meldet euch dafür bitte im Supportbereich.</td>
+                </tr>
+            </table>
+            <br />
+            {$joblist_add}
+            <br />    
+            {$joblist_join}
+            <br />
     
+            <table border="0" cellspacing="{$theme[\'borderwidth\']}" cellpadding="{$theme[\'tablespace\']}" class="tborder">
+                <tr>
+                    <td class="thead"><strong>Jobübersicht</strong></td>
+                </tr>
+                <tr>
+                    <td width="100%">
+                        <div class="joblisttab">
+                            {$tab_menu}
+                        </div>					
+                        {$typ_tabs}
+                    </td>
+                </tr>
+            </table>
+            {$footer}
+        </body>
+    </html>
+    {$joblist_tabs_js}'),
+		'sid'        => '-2',
+		'version'    => '',
+		'dateline'    => TIME_NOW
+	);
+	$db->insert_query("templates", $insert_array);
+
+    // Arbeitsplatz hinzufügen Option - Straßen/Stadt
+	$insert_array = array(
+		'title'        => 'joblist_add_city',
+		'template'    => $db->escape_string('<td class="trow2" align="center">
+        <select name="city" id="city">
+            <option value="">Straße/Stadt auswählen</option>
+            {$city_select}
+        </select>
+    </td>'),
+		'sid'        => '-2',
+		'version'    => '',
+		'dateline'    => TIME_NOW
+	);
+	$db->insert_query("templates", $insert_array);
+
+    // Arbeitsplatz hinzufügen
+	$insert_array = array(
+		'title'        => 'joblist_add',
+		'template'    => $db->escape_string('<form method="post" action="misc.php?action=add_workplace" id="add_workplace">
+        <table border="0" cellspacing="{$theme[\'borderwidth\']}" cellpadding="{$theme[\'tablespace\']}" class="tborder">
+            <tr>
+                <td class="thead" colspan="{$colspan_add}">Arbeitsplatz hinzufügen</td>
+            </tr>
+            <tr>
+                <td class="tcat" width="{$width_add}" align="center">Arbeitsplatz Name</td>
+                <td class="tcat" width="{$width_add}" align="center">Kurzbeschreibung</td>
+                {$city_td}
+                <td class="tcat" width="{$width_add}" align="center">Beschreibung</td>
+                <td class="tcat" width="{$width_add}" align="center">Branche</td>
+            </tr>
+            <tr>
+                <td class="trow2" align="center">
+                    <textarea name="name" id="name" style="width: 200px; height: 25px;"></textarea>
+                </td>
+                <td class="trow2" align="center">
+                    <textarea name="shortfact" id="shortfact" style="width: 200px; height: 25px;"></textarea>
+                </td>
+                {$add_city}
+                <td class="trow2" align="center">
+                    <select name="type" id="type">
+                        <option value="">Branche auswählen</option>
+                        {$type_select}
+                    </select>
+                </td>
+                <td class="trow2" align="center">
+                    <textarea name="description" id="description" style="width: 200px; height: 50px;"></textarea>
+                </td>
+            </tr>
+            <tr>
+                <td class="trow2" colspan="{$colspan_add}" align="center">
+                    <input type="hidden" name="action" value="add_workplace" />
+                    <input type="submit" value="Arbeitsplatz hinzufügen" name="add_workplace" class="button" />
+                </td>
+            </tr>
+        </table>
+    </form>'),
+		'sid'        => '-2',
+		'version'    => '',
+		'dateline'    => TIME_NOW
+	);
+	$db->insert_query("templates", $insert_array);
+
+    // Beruf hinzufügen
+	$insert_array = array(
+		'title'        => 'joblist_join',
+		'template'    => $db->escape_string('<form method="post" action="misc.php?action=join_jobs" id="join_jobs">
+        <table border="0" cellspacing="{$theme[\'borderwidth\']}" cellpadding="{$theme[\'tablespace\']}" class="tborder">
+            <tr>
+                <td class="thead" colspan="3">Beruf hinzufügen</td>
+            </tr>
+            <tr>
+                <td class="tcat" width="25%" align="center">Position</td>
+                <td class="tcat" width="25%" align="center">Betrieb</td>
+                <td class="tcat" width="25%" align="center">Anstellungsart</td>
+            </tr>
+            <tr>
+                <td class="trow2" align="center">
+                    <input type="text" name="position" />
+                </td>
+                <td class="trow2" align="center">
+                    <select name="jid">
+                        <option value="">Betrieb auswählen</option>
+                        {$joblist_options_bit}
+                    </select>
+                </td>
+                <td class="trow2" align="center">
+                    <select name="halftime">
+                        <option value="">Anstellungsart auswählen</option>
+                        <option value="1">Hauptberuf</option>
+                        <option value="0">Nebenjob</option>
+                    </select>
+                </td>
+            </tr>
+            <tr>
+                <td class="trow2" colspan="3" align="center">
+                    <input type="hidden" name="action" value="join_jobs" />
+                    <input type="submit" value="Job eintragen" name="join_jobs" class="button" />
+                </td>
+            </tr>
+        </table>
+    </form>'),
+		'sid'        => '-2',
+		'version'    => '',
+		'dateline'    => TIME_NOW
+	);
+	$db->insert_query("templates", $insert_array);
+
+    // Filter Option
+	$insert_array = array(
+		'title'        => 'joblist_filter',
+		'template'    => $db->escape_string('<tr>
+        <td class="trow2" align="center">
+            <div class="float_left_" style="margin:auto" valign="middle">
+                <form id="workplaces" method="get" action="misc.php?action=joblist">
+                    <input type="hidden" name="action" value="joblist" />
+                    Filtern nach:
+                    <select name="type">
+                        <option value="">Branche auswählen</option>
+                        {$filter_type}
+                    </select>
+                    {$city_filter}
+                    <input type="submit" value="Arbeitsplätze filtern" class="button" />
+                </form>
+            </div>
+        </td>
+    </tr>'),
+		'sid'        => '-2',
+		'version'    => '',
+		'dateline'    => TIME_NOW
+	);
+	$db->insert_query("templates", $insert_array);
+
+    // Arbeitsplätze
+	$insert_array = array(
+		'title'        => 'joblist_bit',
+		'template'    => $db->escape_string('<table class="tborder" cellspacing="{$theme[\'borderwidth\']}" cellpadding="{$theme[\'tablespace\']}">
+        <tr>
+            <td class="thead" colspan="2">{$name} {$type} {$city}</td>
+        </tr>
+        <tr>
+            <td class="trow2 smalltext" align="justify" width="55%">
+                <div style="max-height: 80px; overflow: auto;">
+                    {$description}
+                </div>
+            </td>
+            <td class="trow2" width="35%">
+                <div style="max-height: 80px; overflow: auto;">
+                    {$user_bit}
+                </div>
+            </td>
+            {$joblist_option}
+        </tr>
+    </table>
+    <br>'),
+		'sid'        => '-2',
+		'version'    => '',
+		'dateline'    => TIME_NOW
+	);
+	$db->insert_query("templates", $insert_array);
+
+    // Arbeitsplätze - User
+	$insert_array = array(
+		'title'        => 'joblist_bit_users',
+		'template'    => $db->escape_string('<div class="trow1" style="padding: 3px; margin-bottom: 3px;">{$user} &raquo; {$position} {$edit_job} {$delet_job}</div>'),
+		'sid'        => '-2',
+		'version'    => '',
+		'dateline'    => TIME_NOW
+	);
+	$db->insert_query("templates", $insert_array);
+
+    // Arbeitsplätze - Optionen
+	$insert_array = array(
+		'title'        => 'joblist_bit_option',
+		'template'    => $db->escape_string('<tr>
+        <td class="trow2" align="center" colspan="2">
+            {$edit} {$delete}
+        </td>
+    </tr>'),
+		'sid'        => '-2',
+		'version'    => '',
+		'dateline'    => TIME_NOW
+	);
+	$db->insert_query("templates", $insert_array);
+
+    // Arbeitsplätze in Tabs - Tabs
+	$insert_array = array(
+		'title'        => 'joblist_tabs_category',
+		'template'    => $db->escape_string('<div id="{$joblist_typ}" class="joblisttabcontent">
+        {$joblist_none}
+        {$joblist_bit}
+    </div>'),
+		'sid'        => '-2',
+		'version'    => '',
+		'dateline'    => TIME_NOW
+	);
+	$db->insert_query("templates", $insert_array);
+
+    // Arbeitsplätze in Tabs - Javascript
+	$insert_array = array(
+		'title'        => 'joblist_tabs_js',
+		'template'    => $db->escape_string('<script>
+        function openJoblist(evt, joblistName) {
+      // Declare all variables
+      var i, joblisttabcontent, joblisttablinks;
+    
+      // Get all elements with class="tabcontent" and hide them
+      joblisttabcontent = document.getElementsByClassName("joblisttabcontent");
+      for (i = 0; i < joblisttabcontent.length; i++) {
+        joblisttabcontent[i].style.display = "none";
+      }
+    
+      // Get all elements with class="tablinks" and remove the class "active"
+      joblisttablinks = document.getElementsByClassName("joblisttablinks");
+      for (i = 0; i < joblisttablinks.length; i++) {
+        joblisttablinks[i].className = joblisttablinks[i].className.replace(" active", "");
+      }
+    
+      // Show the current tab, and add an "active" class to the link that opened the tab
+      document.getElementById(joblistName).style.display = "block";
+      evt.currentTarget.className += " active";
+    }
+        
+        // Get the element with id="defaultOpen" and click on it
+        document.getElementById("defaultJoblistOpen").click();
+    </script>'),
+		'sid'        => '-2',
+		'version'    => '',
+		'dateline'    => TIME_NOW
+	);
+	$db->insert_query("templates", $insert_array);
+
+    // Arbeitsplätze in Tabs - kein Arbeitsplatz in dieser kategorie
+	$insert_array = array(
+		'title'        => 'joblist_tabs_none',
+		'template'    => $db->escape_string('<div class="trow2">
+        <table border="0" cellpadding="5" cellspacing="5" class="smalltext">	
+            <tr>		
+                <td>			
+                    <div style="text-align:center;margin:10px auto;">Es sind keine Arbeitsplätze innerhalb dieser Kategorie vorhanden!</div>		
+                </td>	
+            </tr>
+        </table>
+    </div>'),
+		'sid'        => '-2',
+		'version'    => '',
+		'dateline'    => TIME_NOW
+	);
+	$db->insert_query("templates", $insert_array);
+
 
 
 
@@ -584,7 +924,7 @@ function joblist_misc() {
 
 			$query = $db->query("SELECT * FROM ".TABLE_PREFIX."workplaces ORDER by name ASC");
 			while($names = $db->fetch_array($query)) {
-				$joblist_options_bit .= "<option value=\"{$names['jid']}\">{$names['name']}</option>";
+				$joblist_options_bit .= "<option value=\"{$names['jid']}\">{$names['name']} ({$names['shortfact']})</option>";
 			}
 
 			// BEGRENZTE BERUFE
@@ -805,19 +1145,13 @@ function joblist_misc() {
                 // MIT INFOS FÜLLEN
                 $jid = $work['jid'];
                 $type = "» ".$work['type'];
-                $city = $work['city'];
+                $city = "» ".$work['city'];
                 $name = $work['name'];
                 $shortfact = $work['shortfact'];
                 $description = $work['description'];
                 $owner = $work['owner'];
                 $accepted = $work['accepted'];
                 $createdby = $work['createdby'];
-
-                if ($joblist_city_setting == 1) {
-                    eval("\$joblist_city = \"" . $templates->get("joblist_bit_city") . "\";");
-                } else {
-                    $joblist_city = "";
-                }
 
                 // BERUFE INNERHALB DER ARBEITSSTELLE        
                 // Abfrage
@@ -903,7 +1237,7 @@ function joblist_misc() {
                 if($joblist_typ == $joblist_defaulttab_setting){
                     $default_tab = "id=\"defaultJoblistOpen\"";
                 }
-                $tab_menu .= "<button class=\"tablinks\" onclick=\"openJoblist(event, '{$joblist_typ}')\"  {$default_tab}>{$joblist_typ}</button>";
+                $tab_menu .= "<button class=\"joblisttablinks\" onclick=\"openJoblist(event, '{$joblist_typ}')\"  {$default_tab}>{$joblist_typ}</button>";
 
                 $joblist_bit = "";
                 // Einmal alle Work auslesen, die in der aktuellen Kategorie sind!
@@ -913,7 +1247,12 @@ function joblist_misc() {
                 ORDER BY name ASC
                 ");
 
+                // Wenn Arbeitsplätze in dieser Kategorie eingetragen wurde
+                eval("\$joblist_none = \"".$templates->get("joblist_tabs_none")."\";");
+
                 while($work = $db->fetch_array($query_workplace)) {
+
+                    $joblist_none = "";
         
                     // ALLES LEER LAUFEN LASSEN
                     $jid = "";
@@ -928,19 +1267,13 @@ function joblist_misc() {
             
                     // MIT INFOS FÜLLEN
                     $jid = $work['jid'];
-                    $city = $work['city'];
+                    $city = "» ".$work['city'];
                     $name = $work['name'];
-                    $shortfact = $work['shortfact'];
+                    $shortfact = "» ".$work['shortfact'];
                     $description = $work['description'];
                     $owner = $work['owner'];
                     $accepted = $work['accepted'];
                     $createdby = $work['createdby'];
-
-                    if ($joblist_city_setting == 1) {
-                        eval("\$joblist_city = \"" . $templates->get("joblist_bit_city") . "\";");
-                    } else {
-                        $joblist_city = "";
-                    }
     
                     // BERUFE INNERHALB DER ARBEITSSTELLE        
                     // Abfrage
@@ -965,6 +1298,17 @@ function joblist_misc() {
                             $position = $users['position'];
                         } else {
                             $position = "{$users['position']} [Nebenjob]";
+                        }
+
+                        $ujid = "";
+                        $ujid = $users['ujid'];
+
+                        if ($user_id == $users['uid']) {
+                            $edit_job = "» <a href=\"misc.php?action=joblist_editjob&jid={$ujid}\"><i class=\"fas fa-edit\" original-title=\"Arbeitsplatz bearbeiten\"></i></a>";
+                            $delet_job = "» <a href=\"misc.php?action=joblist&delete_job={$ujid}\"><i class=\"fas fa-trash\" original-title=\"Job löschen\"></i></a>";
+                        } else {
+                            $edit_job = "";
+                            $delet_job = "";
                         }
     
                         eval("\$user_bit .= \"".$templates->get("joblist_bit_users")."\";");            
@@ -1040,12 +1384,6 @@ function joblist_misc() {
         output_page($page);
         die();
 	}
-
-    if($mybb->usergroup['canmodcp'] == '1') {
-        eval("\$adminlinks = \"" . $templates->get("listen_nav_admin") . "\";");
-    } else {
-        $adminlinks = "";
-    }
 
     // ARBEITSPLATZ HINZUFÜGEN
     elseif($_POST['add_workplace']) {
