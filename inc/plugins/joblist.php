@@ -164,12 +164,20 @@ function joblist_install(){
             'disporder' => 9
         ),
 
+        'joblist_halftime' => array(
+            'title' => 'Anstellungsart',
+            'description' => 'Können User angeben, ob sie den Beruf als Hauptberuf oder als Nebenjob nachgehen?',
+            'optionscode' => 'yesno',
+            'value' => '1', // Default
+            'disporder' => 10
+        ),
+
         'joblist_tabs' => array(
             'title' => 'Tabsystem',
             'description' => 'Soll die Jobliste in Tabs eingeteilt werden?',
             'optionscode' => 'yesno',
             'value' => '1', // Default
-            'disporder' => 10
+            'disporder' => 11
         ),
 
         'joblist_defaulttab' => array(
@@ -177,7 +185,7 @@ function joblist_install(){
             'description' => 'Welcher Tab soll standardmäßig offen sein, beim laden der Jobliste?',
             'optionscode' => 'text',
             'value' => 'öfftl. Einrichtungen/Verwaltung', // Default
-            'disporder' => 11
+            'disporder' => 12
         ),
 
         'joblist_filter' => array(
@@ -185,7 +193,7 @@ function joblist_install(){
             'description' => 'Soll es auf der Joblisten-Seite eine Filterfunktion geben? Sollte die Jobliste in Tabs angezeigt werden, wird diese Funktion automatisch deaktiviert!',
             'optionscode' => 'yesno',
             'value' => '1', // Default
-            'disporder' => 12
+            'disporder' => 13
         ),
 
         'joblist_multipage' => array(
@@ -193,7 +201,7 @@ function joblist_install(){
             'description' => 'Sollen die Arbeitsplätze ab einer bestimmten Anzahl auf der Seite auf mehrere Seiten aufgeteilt werden?',
             'optionscode' => 'yesno',
             'value' => '1', // Default
-            'disporder' => 13     
+            'disporder' => 14    
         ),
 
         'joblist_multipage_show' => array(
@@ -201,7 +209,7 @@ function joblist_install(){
             'description' => 'Wie viele Arbeitsplätze sollen auf einer Seite angezeigt werden?',
             'optionscode' => 'text',
             'value' => '10', // Default
-            'disporder' => 14     
+            'disporder' => 15     
         ),
 
         'joblist_lists' => array(
@@ -209,7 +217,7 @@ function joblist_install(){
             'description' => 'Wie heißt die Hauptseite eurer Listen-Seite? Dies dient zur Ergänzung der Navigation. Falls nicht gewünscht einfach leer lassen.',
             'optionscode' => 'text',
             'value' => 'listen.php', // Default
-            'disporder' => 15
+            'disporder' => 16
         ),  
     );
     
@@ -855,6 +863,8 @@ function joblist_misc() {
     
     $joblist_delete_setting = $mybb->settings['joblist_delete'];
     $joblist_edit_setting = $mybb->settings['joblist_edit']; 
+
+    $joblist_halftime_setting = $mybb->settings['joblist_halftime']; 
     
     $joblist_limit_setting = $mybb->settings['joblist_limit']; 
     $joblist_limit_number_setting = $mybb->settings['joblist_limit_number']; 
@@ -922,10 +932,25 @@ function joblist_misc() {
             WHERE uid = '$user_id'
             "), 'count_user');
 
+            // Betriebe auslesen 
 			$query = $db->query("SELECT * FROM ".TABLE_PREFIX."workplaces ORDER by name ASC");
 			while($names = $db->fetch_array($query)) {
 				$joblist_options_bit .= "<option value=\"{$names['jid']}\">{$names['name']} ({$names['shortfact']})</option>";
 			}
+
+            // Arbeitsverhältnis 
+            if ($joblist_halftime_setting == 1) {
+                $colspan_join = "3";
+                $width_join = "25%";
+				$halftime_td = '<td class="tcat" width="{$width_join}" align="center">Anstellungsart</td>';
+                eval("\$join_halftime = \"".$templates->get("joblist_join_halftime")."\";");
+            } else {
+                $colspan_add = "2";
+                $width_add = "33%";
+                $halftime_td = "";
+                $join_halftime = "";
+            }
+
 
 			// BEGRENZTE BERUFE
 			if ($joblist_limit_setting == 1) {
@@ -1370,6 +1395,14 @@ function joblist_misc() {
             $db->delete_query("workplaces", "jid = '$delete'");
             // in DB jobs löschen
             $db->delete_query("jobs", "jid = '$delete'");
+            redirect("misc.php?action=joblist", "{$lang->joblist_delete_redirect}");
+        }
+
+        // JOB LÖSCHEN
+        $delete_user = $mybb->input['delete_job'];
+        if($delete_user) {
+            // in DB jobs löschen
+            $db->delete_query("jobs", "ujid = '$delete_user'");
             redirect("misc.php?action=joblist", "{$lang->joblist_delete_redirect}");
         }
 
